@@ -1,5 +1,6 @@
 # Azure AKS Step by Step
 
+![image](https://user-images.githubusercontent.com/80425460/141885752-2b967f64-a50e-4e7b-a80b-2025a6b0fddb.png)
 # Goals
 ## 1. Deploy AKS Cluster Using Azure CLI (az aks create)
 ## 2. Configure the Ingress Controller using the Application Gateway
