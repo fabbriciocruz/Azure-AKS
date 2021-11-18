@@ -1,6 +1,7 @@
 # Azure AKS Step by Step
 
 ![image](https://user-images.githubusercontent.com/80425460/141885752-2b967f64-a50e-4e7b-a80b-2025a6b0fddb.png)
+
 # Goals
 ## 1. Deploy AKS Cluster Using Azure CLI (az aks create)
 ## 2. Configure the Ingress Controller using the Application Gateway
@@ -9,6 +10,8 @@
 # Prerequisites
 # 1. Three /24 private subnets
 # 2. One /27 subnet for the Application Gateway
+
+# Create a Resource Group
 
 # Use the Azure CLI
 
@@ -59,6 +62,12 @@ az aks create \
 ## 1. Configure kubectl to connect to your Kubernetes cluster using the az aks get-credentials command
 az aks get-credentials --name Cluster01 --resource-group $RG
 
+# When you create an AKS cluster, a second resource group is automatically created to store the AKS resources needed to support your cluster, things like load balancers, public IPs, VMSS backing the node pools will be created here
+## To get the name of the resource group, use the command below:
+az aks show --name myAKSCluster \
+    --resource-group myAKSResourceGroup \
+    --query "nodeResourceGroup"
+
 # Test the cluster getting some information 
 
 ## 1. List managed Kubernetes clusters.
@@ -98,7 +107,7 @@ az aks delete --name MyManagedCluster --resource-group MyResourceGroup
 #-----------DRAFT
 
 az aks get-versions \
---location southcentralus
+--location brazilsouth
 
 az aks delete --name Cluster01 --resource-group $RG
 
@@ -121,6 +130,7 @@ az aks enable-addons --addons ingress-appgw \
     [--appgw-subnet-id]
 
 az aks get-credentials --name Cluster01 --resource-group $RG
+
 
 az aks show --name Cluster01 \
 --resource-group $RG \
