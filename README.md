@@ -23,10 +23,14 @@ kubectl completion bash >>  ~/.bash_completion
 !
 
 # Create a Resource Group
+```
 az group create --name <ResourceGroupName> --location <AzureLocation>
+```
 
 # Create a variable for the resource group name:
+```
 RG=<RESOURCE_GROUP_NAME>
+```
 
 # AKS and Kubernetes Version Matrix
 ## Supported Kubernetes versions in Azure Kubernetes Service (AKS)
@@ -40,14 +44,14 @@ RG=<RESOURCE_GROUP_NAME>
 kubectl version --short
 
 # 2. To find out what Kubernetes versions (Server Version) are currently available for your subscription and region, use the az aks get-versions command. 
-
+```
 az aks get-versions \
 --location <AZURE LOCATION> \
 --subscription <AZURE SUBSCRIPTION> # Optional
-
+```
 
 # Create a Cluster
-
+```
 az aks create \
  --resource-group $RG \
  --name Cluster01 \
@@ -58,15 +62,22 @@ az aks create \
  --generate-ssh-keys \
  --node-vm-size Standard_B2s \
  --enable-managed-identity
+```
 
 ## 1. Configure kubectl to connect to your Kubernetes cluster using the az aks get-credentials command
+```
 az aks get-credentials --name Cluster01 --resource-group $RG
+```
 
-# When you create an AKS cluster, a second resource group is automatically created to store the AKS resources needed to support your cluster, things like load balancers, public IPs, VMSS backing the node pools will be created here
-## To get the name of the resource group, use the command below:
+When you create an AKS cluster, a second resource group is automatically created to store the AKS resources needed to support your cluster, things like load balancers, public IPs, VMSS backing the node pools will be created here.
+
+To get the name of the resource group, use the command below:
+
+```
 az aks show --name myAKSCluster \
     --resource-group myAKSResourceGroup \
     --query "nodeResourceGroup"
+```
 
 # Test the cluster getting some information 
 
@@ -95,13 +106,23 @@ az aks show -g $RG -n Cluster01
 # Appgw ssl certificate
 ## https://azure.github.io/application-gateway-kubernetes-ingress/features/appgw-ssl-certificate/
 
-# Useful commands
-
-# 1. To delete a cluster
-az aks delete --name MyManagedCluster --resource-group MyResourceGroup
 
 # Account Management on Azure AKS with AAD and AKS RBAC
 ## https://ystatit.medium.com/account-management-on-azure-aks-with-aad-and-aks-rbac-fc178f90475b
+
+
+# Useful commands
+
+1. To delete a cluster
+    ```
+    az aks delete --name MyManagedCluster --resource-group MyResourceGroup
+    ```
+
+2. Stop an AKS Cluster
+    ```
+    az aks stop --name myAKSCluster --resource-group myResourceGroup
+    ```
+3. Start an AKS Cluster
 
 
 #-----------DRAFT
