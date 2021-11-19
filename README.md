@@ -208,7 +208,7 @@ az aks enable-addons --addons ingress-appgw \
 
     [--appgw-subnet-id]
 
-# Comming soon: SSL/TLS Certificate (Mastigadinho...)
+# Coming soon: SSL/TLS Certificate (Mastigadinho...)
 # Create a user-assigned managed identity
 az identity create -g MC_aks-tests-fcruz_Cluster01_brazilsouth -n Aks-fcruz
 
