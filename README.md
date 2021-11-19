@@ -10,64 +10,64 @@
 # Prerequisites
 1. Three /24 private subnets
 2. One /27 subnet for the Application Gateway
-
-
-## Use the Azure CLI
-
-## Enable kubectl bash_completion
+3. Enable the Azure Cloud Shell
+4. Enable kubectl bash_completion
     ```
     kubectl completion bash >>  ~/.bash_completion
     . /etc/profile.d/bash_completion.sh
     . ~/.bash_completion
     ```
-
-
-# Create a Resource Group
+# Howto
+## Create a Resource Group
 ```
 az group create --name <ResourceGroupName> --location <AzureLocation>
 ```
 
-# Create a variable for the resource group name:
+## Create a variable for the resource group name:
 ```
 RG=<RESOURCE_GROUP_NAME>
 ```
 
-# AKS and Kubernetes Version Matrix
-## Supported Kubernetes versions in Azure Kubernetes Service (AKS)
-### https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli
+## AKS and Kubernetes Version Matrix
+### Supported Kubernetes versions in Azure Kubernetes Service (AKS)
+https://docs.microsoft.com/en-us/azure/aks/supported-kubernetes-versions?tabs=azure-cli
 
 ## Supported kubectl versions
-### You can use one minor version older or newer of kubectl (Client Version) relative to your kube-apiserver version (Server Version)
-### For example, if your kube-apiserver is at 1.17, then you can use versions 1.16 to 1.18 of kubectl with that kube-apiserver.
+You can use one minor version older or newer of kubectl (Client Version) relative to your kube-apiserver version (Server Version)
 
-# 1. Get the current kubectl version
-kubectl version --short
+For example, if your kube-apiserver is at 1.17, then you can use versions 1.16 to 1.18 of kubectl with that kube-apiserver.
 
-# 2. To find out what Kubernetes versions (Server Version) are currently available for your subscription and region, use the az aks get-versions command. 
-```
-az aks get-versions \
---location <AZURE LOCATION> \
---subscription <AZURE SUBSCRIPTION> # Optional
-```
+1. Get the current kubectl version
+    ```
+    kubectl version --short
+    ```
 
-# Create a Cluster
-```
-az aks create \
- --resource-group $RG \
- --name Cluster01 \
- #--enable-private-cluster \
- #--disable-public-fqdn \
- --kubernetes-version <value from: `az aks get-versions`> \
- --node-count 3 \
- --generate-ssh-keys \
- --node-vm-size Standard_B2s \
- --enable-managed-identity
-```
+2. To find out what Kubernetes versions (Server Version) are currently available for your subscription and region, use the az aks get-versions command. 
+    ```
+    az aks get-versions \
+    --location <AZURE LOCATION> \
+    --subscription <AZURE SUBSCRIPTION> # Optional
+    ```
 
-## 1. Configure kubectl to connect to your Kubernetes cluster using the az aks get-credentials command
-```
-az aks get-credentials --name Cluster01 --resource-group $RG
-```
+## Create a Cluster
+1. Run the following command
+    ```
+    az aks create \
+    --resource-group $RG \
+    --name Cluster01 \
+    #--enable-private-cluster \
+    #--disable-public-fqdn \
+    --kubernetes-version <value from: `az aks get-versions`> \
+    --node-count 3 \
+    --generate-ssh-keys \
+    --node-vm-size Standard_B2s \
+    --enable-managed-identity
+    ```
+
+2. Configure kubectl to connect to your Kubernetes cluster using the az aks get-credentials command
+    ```
+    az aks get-credentials --name Cluster01 --resource-group $RG
+    ```
 
 When you create an AKS cluster, a second resource group is automatically created to store the AKS resources needed to support your cluster, things like load balancers, public IPs, VMSS backing the node pools will be created here.
 
@@ -79,43 +79,53 @@ az aks show --name myAKSCluster \
     --query "nodeResourceGroup"
 ```
 
-# Test the cluster getting some information 
+## Test the cluster getting some information 
 
-## 1. List managed Kubernetes clusters.
-az aks list
+1. List managed Kubernetes clusters.
+    ```
+    az aks list
+    ```
+2. Get kubectl client and server versions
+    ```
+    kubectl version --short
+    ```
 
-## 2. Get kubectl client and server versions
-kubectl version --short
+3. Get node information
+    ```
+    kubectl get nodes -o wide
+    ```
 
-## 3. Get node information
-kubectl get nodes -o wide
+4. Get cluster information
+    ```
+    kubectl cluster-info
+    ```
 
-## 4. Get cluster information
-kubectl cluster-info
+5. Show the details for a managed Kubernetes cluster
+    ```
+    az aks show -g $RG -n Cluster01
+    ```
 
-## 5. Show the details for a managed Kubernetes cluster
-az aks show -g $RG -n Cluster01
-
-
-# Application GatewayIngress Controller
+## Application GatewayIngress Controller
 Pay attention that AGIC only supports v2 SKUs
 
-## AKS — different load balancing options. When to use what?
-### https://medium.com/microsoftazure/aks-different-load-balancing-options-for-a-single-cluster-when-to-use-what-abd2c22c2825
+AKS — Different load balancing options. When to use what?
 
-## There’s three options when you enable the add-on:
+https://medium.com/microsoftazure/aks-different-load-balancing-options-for-a-single-cluster-when-to-use-what-abd2c22c2825
+
+There’s three options when you enable the add-on:
 * Have an existing Application gateway that you want to integrate with the cluster.
 * Have the AGIC add-on create a new App Gateway to an existing subnet.
 * Have the AGIC add-on create a new App Gateway and its subnet having that you provide the subnet CIDR you want to use.
 
-1. Enable the AGIC add on in our cluster
+Enable the AGIC add on in the cluster using the third option listed above:
+
     ```
     az aks enable-addons --resource-group myAKSResourceGroup \
     --name myAKSCluster -a ingress-appgw \
     --appgw-subnet-cidr 192.168.2.0/24 \
     --appgw-name myAKSAppGateway
     ```
-# Deploy the application
+## Deploy the application
 1. Apply the configuration
     ```
     kubectl apply 4-AKS-ingress_2048.yaml
@@ -135,18 +145,18 @@ Pay attention that AGIC only supports v2 SKUs
     appgw.ingress.kubernetes.io/ssl-redirect: "true"
     ```
     
-2.  Appgw ssl certificate
+2. Appgw SSL/TLS certificate
 
     https://azure.github.io/application-gateway-kubernetes-ingress/features/appgw-ssl-certificate/
 
     https://azure.github.io/application-gateway-kubernetes-ingress/annotations/#appgw-ssl-certificate
 
-# Account Management on Azure AKS with AAD and AKS RBAC
+## Account Management on Azure AKS with AAD and AKS RBAC
 
-    https://ystatit.medium.com/account-management-on-azure-aks-with-aad-and-aks-rbac-fc178f90475b
+https://ystatit.medium.com/account-management-on-azure-aks-with-aad-and-aks-rbac-fc178f90475b
 
 
-# Useful commands
+## Useful commands
 
 1. To delete a cluster
     ```
@@ -168,7 +178,7 @@ Pay attention that AGIC only supports v2 SKUs
 
 
 
-#-----------DRAFT
+# DRAFT
 
 az aks get-versions \
 --location brazilsouth
@@ -191,58 +201,75 @@ az aks show --name Cluster01 \
 --query "nodeResourceGroup"
 
 az aks enable-addons --addons ingress-appgw \
-    --resource-group $RG \
+    --resource-group aks-tests-fcruz \
     --name Cluster01 \
     --appgw-name AksCluster01 \
     --appgw-subnet-cidr 10.241.0.0/16
 
     [--appgw-subnet-id]
 
-------
+# Comming soon: SSL/TLS Certificate (Mastigadinho...)
 # Create a user-assigned managed identity
-az identity create -g $RG -n Aks-fcruz
+az identity create -g MC_aks-tests-fcruz_Cluster01_brazilsouth -n Aks-fcruz
 
 # Configure your resources
+```
 appgwName="AksCluster01"
-resgp="aks-tests-fcruz"
-vaultName="aks-fcruz"
+
+resgp="MC_aks-tests-fcruz_Cluster01_brazilsouth"
+
+vaultName="aks-fcruz-3"
+
 location="brazilsouth"
-agicIdentityPrincipalId="3252a634-4f2d-491f-8d39-6d45b6f2d0ac"
 
-az keyvault create -n $vaultName -g $resgp --enable-soft-delete -l $location
+agicIdentityPrincipalId="fc7bab78-4133-454d-89f4-654515a599cc"
+```
 
-az identity create -n appgw-id -g $resgp -l $location
-identityID=$(az identity show -n appgw-id -g $resgp -o tsv --query "id")
-identityPrincipal=$(az identity show -n appgw-id -g $resgp -o tsv --query "principalId")
+Obs.: Take a look at this: Argument 'enable_soft_delete' has been deprecated and will be removed in a future release.
 
+```
+az keyvault create -n aks-fcruz -g MC_aks-tests-fcruz_Cluster01_brazilsouth --enable-soft-delete -l $location
+```
+
+```
+az identity create -n appgw-id -g MC_aks-tests-fcruz_Cluster01_brazilsouth -l $location
+identityID=$(az identity show -n appgw-id -g MC_aks-tests-fcruz_Cluster01_brazilsouth -o tsv --query "id")
+identityPrincipal=$(az identity show -n appgw-id -g MC_aks-tests-fcruz_Cluster01_brazilsouth -o tsv --query "principalId")
+```
+```
 az role assignment create --role "Managed Identity Operator" --assignee $agicIdentityPrincipalId --scope $identityID
-
+```
+```
 az network application-gateway identity assign \
   --gateway-name $appgwName \
   --resource-group MC_aks-tests-fcruz_Cluster01_brazilsouth \
   --identity $identityID
-
+```
+```
 az keyvault set-policy \
 -n $vaultName \
--g aks-tests-fcruz \
+-g MC_aks-tests-fcruz_Cluster01_brazilsouth \
 --object-id $identityPrincipal \
 --secret-permissions get
-
+```
+```
 az keyvault certificate create \
 --vault-name $vaultName \
 -n mycert \
 -p "$(az keyvault certificate get-default-policy)"
 versionedSecretId=$(az keyvault certificate show -n mycert --vault-name $vaultName --query "sid" -o tsv)
 unversionedSecretId=$(echo $versionedSecretId | cut -d'/' -f-5) # remove the version from the url
-
+```
+```
 az network application-gateway ssl-cert create \
 -n mykvsslcert \
 --gateway-name $appgwName \
 --resource-group MC_aks-tests-fcruz_Cluster01_brazilsouth \
 --key-vault-secret-id $unversionedSecretId # ssl certificate with name "mykvsslcert" will be configured on AppGw
-
+```
+```
 az network application-gateway ssl-cert list --gateway-name AksCluster01 --resource-group MC_aks-tests-fcruz_Cluster01_brazilsouth
-
+```
 
 
 
